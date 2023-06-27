@@ -142,20 +142,29 @@ with torch.no_grad():
 
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        estimated_angle = 0
         for result in results:
             if result.detected_objects:
                 for detected_object in result.detected_objects:
-                    print(detected_object.rotation, detected_object.translation)
+                    y_rotation = [detected_object.rotation[0][1], detected_object.rotation[1][1], detected_object.rotation[2][1]]
+                    y_unitVector = np.array([0, 1, 0])
                     
-                    mp_drawing.draw_landmarks(image, 
-                                              detected_object.landmarks_2d, 
-                                              mp_objectron.BOX_CONNECTIONS)
+                    inner_product = np.inner(y_rotation, y_unitVector)
+                    norm_product = np.multiply(np.linalg.norm(y_rotation), np.linalg.norm(y_unitVector))
+
+                    theta = np.arccos(np.divide(inner_product, norm_product)) * 180 / np.pi
+                    estimated_angle = theta
+                    
+                    # mp_drawing.draw_landmarks(image, 
+                    #                           detected_object.landmarks_2d, 
+                    #                           mp_objectron.BOX_CONNECTIONS)
                     
                     mp_drawing.draw_axis(image, 
                                         detected_object.rotation,
                                         detected_object.translation)
 
             horizontal_images = np.hstack((image, yolo_result))
+            cv2.putText(horizontal_images, 'Estimated angle: ' + str(estimated_angle), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             cv2.imshow('', horizontal_images)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
