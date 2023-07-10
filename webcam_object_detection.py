@@ -18,6 +18,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+from teensy import sendToTeensy, arduino
+
 
 mp_objectron = mp.solutions.objectron
 mp_drawing = mp.solutions.drawing_utils
@@ -164,8 +166,17 @@ with torch.no_grad():
                                         detected_object.translation)
 
             horizontal_images = np.hstack((image, yolo_result))
+            sendToTeensy(estimated_angle)
             cv2.putText(horizontal_images, 'Estimated angle: ' + str(estimated_angle), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             cv2.imshow('', horizontal_images)
+
+            if arduino.readable():
+                # 들어온 값이 있으면 값을 한 줄 읽음 (BYTE 단위로 받는다.)
+                # BYTE 단위로 받은 response 모습 : b'\xec\x97\x86\xec\x9d\x8c\r\n'
+                response = arduino.readline()
+                
+                # 디코딩 후, 출력 (가장 끝의 \n을 없애주기위해 슬라이싱 사용)
+                print(response[:len(response)-1].decode())
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
 
