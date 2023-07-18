@@ -23,7 +23,7 @@ class HandLandmarkDetection:
         self.position = None
         self.cap = cap
         self.image = None
-        self.detection_result = None
+        self.landmarks = None
 
     def draw_landmarks_on_image(self, rgb_image, detection_result):
         hand_landmarks_list = detection_result.hand_landmarks
@@ -67,7 +67,6 @@ class HandLandmarkDetection:
                 image.numpy_view(), detection_result
             )
 
-            self.detection_result = detection_result
+            if len(detection_result.hand_landmarks) > 0:
+                self.landmarks = detection_result.hand_landmarks[0]
             self.image = annotated_image
-
-            print('detection_result: ', detection_result)

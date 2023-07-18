@@ -5,6 +5,9 @@ from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
 import numpy as np
 
+from teensy import arduino, sendToTeensy
+from processings import hand
+
 cap = cv2.VideoCapture(0)
 
 
@@ -25,11 +28,18 @@ if __name__ == "__main__":
             if objectron.image is None or hand_landmark_detection.image is None:
                 continue
 
+            hand_position = hand.get_position(
+                hand_landmark_detection.landmarks, objectron.landmarks_3d
+            )
+
+            sendToTeensy(objectron.angle)
+            sendToTeensy(hand_position)
+
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
             )
 
-            cv2.imshow("auto-prothetic-handle control system", horizontal_images)
+            cv2.imshow("auto-prothetic-hand control system", horizontal_images)
             if cv2.waitKey(10) & 0xFF == ord("q"):
                 break
 
