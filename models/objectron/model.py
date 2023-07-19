@@ -17,6 +17,7 @@ class Objectron:
         self.cap = cap
         self.angle = None
         self.image = None
+        self.landmarks_3d = None
 
     def run(self):
         print("Objectron running...")
@@ -24,6 +25,7 @@ class Objectron:
             success, image = self.cap.read()
             if not success:
                 continue
+            self.image = image
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             result = self.objectron.process(image)
@@ -35,6 +37,9 @@ class Objectron:
 
             if result.detected_objects:
                 for detected_object in result.detected_objects:
+                    landmarks = []
+                    for landmark in detected_object.landmarks_3d.landmark:
+                        landmarks.append(landmark)
                     y_rotation = [
                         detected_object.rotation[0][1],
                         detected_object.rotation[1][1],
@@ -56,8 +61,6 @@ class Objectron:
                         image, detected_object.rotation, detected_object.translation
                     )
 
-                    # sendToTeensy(estimated_angle)
-
                     self.angle = estimated_angle
                     self.image = image
-                    print("Angle: ", estimated_angle)
+                    self.landmarks_3d = landmarks
