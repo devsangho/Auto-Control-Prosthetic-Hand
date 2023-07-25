@@ -7,6 +7,8 @@ print([port.name for port in ports])
 
 # 컴퓨터와 OS에 따라 serial_port는 달라질 수 있음.
 # serial_port = '/dev/cu.usbmodem134065601'
+# 아두이노1: imu 센서
+# 아두이노2: 의수
 serial_port1 = "/dev/cu.usbmodem134063301"
 serial_port2 = "/dev/cu.usbmodem134114301"
 serial_baudrate = 115200
