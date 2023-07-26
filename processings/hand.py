@@ -7,8 +7,6 @@ def get_position(hand_landmarks, object_landmarks) -> str:
     if object_landmarks is None or object_landmarks == []:
         return "NULL"
 
-    print("object_landmarks[3]", len(object_landmarks))
-
     top_of_object = np.mean(
         [
             np.array(object_landmarks[3].y),
@@ -28,7 +26,6 @@ def get_position(hand_landmarks, object_landmarks) -> str:
         axis=0,
     )
 
-    print("top_of_object", top_of_object, "down_of_object", down_of_object)
     center_of_object = object_landmarks[0]
     center_of_hand = hand_landmarks[0]
 
