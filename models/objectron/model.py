@@ -40,16 +40,17 @@ class Objectron:
                     landmarks = []
                     for landmark in detected_object.landmarks_3d.landmark:
                         landmarks.append(landmark)
-                    y_rotation = [
+                    
+                    y_prime = [
                         detected_object.rotation[0][1],
                         detected_object.rotation[1][1],
-                        detected_object.rotation[2][1],
+                        0,
                     ]
                     y_unitVector = np.array([0, 1, 0])
 
-                    inner_product = np.inner(y_rotation, y_unitVector)
+                    inner_product = np.inner(y_prime, y_unitVector)
                     norm_product = np.multiply(
-                        np.linalg.norm(y_rotation), np.linalg.norm(y_unitVector)
+                        np.linalg.norm(y_prime), np.linalg.norm(y_unitVector)
                     )
 
                     theta = (
@@ -57,10 +58,15 @@ class Objectron:
                     )
                     estimated_angle = theta
 
+                    self.drawing.draw_landmarks(
+                        image,
+                        detected_object.landmarks_2d,
+                        mp.solutions.objectron.BOX_CONNECTIONS,
+                    )
                     self.drawing.draw_axis(
                         image, detected_object.rotation, detected_object.translation
                     )
 
-                    self.angle = estimated_angle
+                    self.angle = estimated_angle if detected_object.rotation[0][1] > 0 else -estimated_angle
                     self.image = image
                     self.landmarks_3d = landmarks
