@@ -17,6 +17,13 @@ int max_pos[7] = {950, 250, 650, 650, 650, 650, 180};
 //2 motor min: 0, max: 250
 //3~6 motor min: 50, max: 650
 //servo motor min: 0, max: 180
+int grasp_pos[7] = {720, 30, 361, 355, 308, 344};
+//1 motor 720
+//2 motor 16
+//3 motor 361
+//4 motor 355
+//5 motor 308
+//6 motor 344
 
 void setup() {
   for(int thisMotor = 0; thisMotor < 6; thisMotor ++) {
@@ -111,14 +118,14 @@ void loop() {
   // Serial.println("");
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  //serial output
-  for(int thisMotor = 0; thisMotor < 6; thisMotor ++) {
-    pos[thisMotor] = analogRead(wiperPins[thisMotor]);
-    Serial.print(pos[thisMotor]);
-    Serial.print("\t");
-  }
-  Serial.print(pos[6]);
-  Serial.println("");
+  //serial output (error)
+  // for(int thisMotor = 0; thisMotor < 6; thisMotor ++) {
+  //   pos[thisMotor] = analogRead(wiperPins[thisMotor]);
+  //   Serial.print(pos[thisMotor]);
+  //   Serial.print("\t");
+  // }
+  // Serial.print(pos[6]);
+  // Serial.println("");
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //motor control
@@ -225,13 +232,19 @@ void extractionRetraction(int type) {
 }
 
 void graspRelease(int type) {
-  //1 motor 720
-  //2 motor 16
-  //3 motor 361
-  //4 motor 355
-  //5 motor 308
-  //6 motor 344
-
+  //1(grasp), 2(release)
+  switch(type) {
+    case 1:
+      for(int thisMotor = 0; thisMotor < 7; thisMotor ++) {
+        temp[thisMotor] = grasp_pos[thisMotor] - pos[thisMotor];
+      }
+      break;
+    case 2:
+      for(int thisMotor = 0; thisMotor < 7; thisMotor ++) {
+        temp[thisMotor] = min_pos[thisMotor] - pos[thisMotor];
+      }
+      break;
+  }
 }
 
 void wristMove(int angle) {
