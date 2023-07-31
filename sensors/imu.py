@@ -1,4 +1,4 @@
-from teensy import arduino1, sendToTeensy1
+from teensy import arduino1
 
 
 class IMU:
@@ -7,9 +7,9 @@ class IMU:
 
     def run(self):
         print("IMU running...")
-        sendToTeensy1("START_IMU")
-        while arduino1.readable():
-            raw_response = arduino1.readline()
+        arduino1.send("START_IMU")
+        while arduino1.arduino.readable():
+            raw_response = arduino1.arduino.readline()
             response = raw_response[0 : len(raw_response) - 1].decode().split("\t")
 
             if response[0] == "ypr":

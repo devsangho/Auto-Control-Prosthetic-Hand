@@ -5,14 +5,11 @@ from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
 import numpy as np
 
-from teensy import sendToTeensy2
+from teensy import arduino1, arduino2
 from processings import hand, angle
 from sensors.imu import IMU
 
-import time
-
 cap = cv2.VideoCapture(0)
-
 
 if __name__ == "__main__":
     objectron = Objectron("Cup", cap)
@@ -26,6 +23,11 @@ if __name__ == "__main__":
     imu = IMU()
     imu_thread = Worker(name="imu", model=imu)
 
+    arduino1_thread = Worker(name="arduino1", model=arduino1)
+    arduino2_thread = Worker(name="arduino2", model=arduino2)
+
+    arduino1_thread.start()
+    arduino2_thread.start()
     objectron_thread.start()
     hand_landmark_detection_thread.start()
     imu_thread.start()
@@ -39,16 +41,12 @@ if __name__ == "__main__":
                 hand_landmark_detection.landmarks, objectron.landmarks_3d
             )
 
-            head_angle = angle.get_head_angle(
-                objectron.angle, [imu.x, imu.y, imu.z, imu.w]
-            )
-            if head_angle is not None:
+            head_angle = angle.get_head_angle(objectron.angle, imu.roll)
+            if head_angle is not None and objectron.landmarks_3d is not None:
                 hand_angle = angle.get_hand_angle(head_angle)
-                sendToTeensy2(hand_angle)
+                arduino2.send(hand_angle)
 
-            sendToTeensy2(hand_position)
-
-            time.sleep(1)
+            arduino2.send(hand_position)
 
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
