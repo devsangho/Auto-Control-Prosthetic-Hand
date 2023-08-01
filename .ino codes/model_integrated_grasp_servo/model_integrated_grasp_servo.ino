@@ -105,6 +105,13 @@ void loop() {
       extractionRetraction(2);
     }
 
+    if(str.indexOf('c') != -1) {
+      graspRelease(1);
+    }
+    else if(str.indexOf('v') != -1) {
+      graspRelease(2);
+    }
+
     if(str.lastIndexOf('/') != -1) {
       int angle_index = str.lastIndexOf('/') + 1;
       int angle = str.substring(angle_index).toInt();

@@ -54,49 +54,56 @@ void loop() {
     String str = String(buffer);
     // Serial.println(str);
 
-    if(str.indexOf('q') != -1) {
-      temp[0] += 10;
-    }
-    if(str.indexOf('w') != -1) {
-      temp[1] += 10;
-    }
-    if(str.indexOf('e') != -1) {
-      temp[2] += 10;
-    }
-    if(str.indexOf('r') != -1) {
-      temp[3] += 10;
-    }
-    if(str.indexOf('t') != -1) {
-      temp[4] += 10;
-    }
-    if(str.indexOf('y') != -1) {
-      temp[5] += 10;
-    }
-    if(str.indexOf('u') != -1) {
-      temp[6] += 10;
-    }
+    // qwertyu
+    // asdfghj
+    // zx
+    // cv
+    // /wrist angle
+    // up, down, left, right
 
-    if(str.indexOf('a') != -1) {
-      temp[0] -= 10;
-    }
-    if(str.indexOf('s') != -1) {
-      temp[1] -= 10;
-    }
-    if(str.indexOf('d') != -1) {
-      temp[2] -= 10;
-    }
-    if(str.indexOf('f') != -1) {
-      temp[3] -= 10;
-    }
-    if(str.indexOf('g') != -1) {
-      temp[4] -= 10;
-    }
-    if(str.indexOf('h') != -1) {
-      temp[5] -= 10;
-    }
-    if(str.indexOf('j') != -1) {
-      temp[6] -= 10;
-    }
+    // if(str.indexOf('q') != -1) {
+    //   temp[0] += 10;
+    // }
+    // if(str.indexOf('w') != -1) {
+    //   temp[1] += 10;
+    // }
+    // if(str.indexOf('e') != -1) {
+    //   temp[2] += 10;
+    // }
+    // if(str.indexOf('r') != -1) {
+    //   temp[3] += 10;
+    // }
+    // if(str.indexOf('t') != -1) {
+    //   temp[4] += 10;
+    // }
+    // if(str.indexOf('y') != -1) {
+    //   temp[5] += 10;
+    // }
+    // if(str.indexOf('u') != -1) {
+    //   temp[6] += 10;
+    // }
+
+    // if(str.indexOf('a') != -1) {
+    //   temp[0] -= 10;
+    // }
+    // if(str.indexOf('s') != -1) {
+    //   temp[1] -= 10;
+    // }
+    // if(str.indexOf('d') != -1) {
+    //   temp[2] -= 10;
+    // }
+    // if(str.indexOf('f') != -1) {
+    //   temp[3] -= 10;
+    // }
+    // if(str.indexOf('g') != -1) {
+    //   temp[4] -= 10;
+    // }
+    // if(str.indexOf('h') != -1) {
+    //   temp[5] -= 10;
+    // }
+    // if(str.indexOf('j') != -1) {
+    //   temp[6] -= 10;
+    // }
 
     if(str.indexOf('z') != -1) {
       extractionRetraction(1);
@@ -105,7 +112,23 @@ void loop() {
       extractionRetraction(2);
     }
 
-    if(str.lastIndexOf('/') != -1) {
+    if(str.indexOf('c') != -1) {
+      graspRelease(1);
+    }
+    else if(str.indexOf('v') != -1) {
+      graspRelease(2);
+    }
+
+    if(str.indexOf("up") != -1) {
+      wristMove(180);
+    }
+    else if(str.indexOf("down") != -1) {
+      wristMove(0);
+    }
+    else if(str.indexOf("left") != -1) {
+      wristMove(90);
+    }
+    else if(str.lastIndexOf('/') != -1) {
       int angle_index = str.lastIndexOf('/') + 1;
       int angle = str.substring(angle_index).toInt();
       wristMove(angle);
@@ -176,7 +199,6 @@ void loop() {
     if(pos[6] < max_pos[6]) {
       pos[6] += 1;
       servo.write(pos[6]);
-      Serial.println(pos[6]);
     }
     else {
       temp[6] = 0;
@@ -187,7 +209,6 @@ void loop() {
     if(pos[6] > min_pos[6]) {
       pos[6] -= 1;
       servo.write(pos[6]);
-      Serial.println(pos[6]);
     }
     else {
       temp[6] = 0;
