@@ -34,7 +34,7 @@ class Arduino:
             self.arduino.write("/".encode() + str(message).encode())
             print("message: ", message)
 
-            time.sleep(0.01)
+            time.sleep(2)
             self.queue = Queue()
 
 

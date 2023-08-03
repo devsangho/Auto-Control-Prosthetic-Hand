@@ -41,12 +41,19 @@ if __name__ == "__main__":
                 hand_landmark_detection.landmarks, objectron.landmarks_3d
             )
 
-            head_angle = angle.get_head_angle(objectron.angle, imu.roll)
-            if head_angle is not None and objectron.landmarks_3d is not None:
-                hand_angle = angle.get_hand_angle(head_angle)
-                arduino2.send(hand_angle)
+            # print(np.transpose(objectron.rotation_matrix), time.time())
+            if (
+                objectron.rotation_matrix is not None
+                and imu.rotation_matrix is not None
+            ):
+                head_angle = angle.get_head_angle(
+                    objectron.rotation_matrix, imu.rotation_matrix
+                )
+            # if head_angle is not None and objectron.landmarks_3d is not None:
+            #     hand_angle = angle.get_hand_angle(head_angle)
+            #     arduino2.send(hand_angle)
 
-            arduino2.send(hand_position)
+            # arduino2.send(hand_position)
 
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]

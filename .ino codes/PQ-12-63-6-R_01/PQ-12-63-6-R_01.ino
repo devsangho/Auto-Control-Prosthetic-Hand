@@ -38,7 +38,6 @@ void servoControl(uint8_t target_pos, float speed) {
 }
 
 void setup() {
-  servo.attach(33, 2000, 1000);
   Serial.begin(9600);
 
   if(CALIBR == false) {

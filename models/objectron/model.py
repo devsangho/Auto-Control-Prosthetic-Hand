@@ -15,7 +15,7 @@ class Objectron:
             model_name=model_name,
         )
         self.cap = cap
-        self.angle = None
+        self.rotation_matrix = None
         self.image = None
         self.landmarks_3d = None
 
@@ -33,30 +33,13 @@ class Objectron:
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            estimated_angle = None
-
             if result.detected_objects:
                 for detected_object in result.detected_objects:
                     landmarks = []
                     for landmark in detected_object.landmarks_3d.landmark:
                         landmarks.append(landmark)
-                    
-                    y_prime = [
-                        detected_object.rotation[0][1],
-                        detected_object.rotation[1][1],
-                        0,
-                    ]
-                    y_unitVector = np.array([0, 1, 0])
 
-                    inner_product = np.inner(y_prime, y_unitVector)
-                    norm_product = np.multiply(
-                        np.linalg.norm(y_prime), np.linalg.norm(y_unitVector)
-                    )
-
-                    theta = (
-                        np.arccos(np.divide(inner_product, norm_product)) * 180 / np.pi
-                    )
-                    estimated_angle = theta
+                    self.rotation_matrix = np.array(detected_object.rotation)
 
                     self.drawing.draw_landmarks(
                         image,
@@ -67,6 +50,5 @@ class Objectron:
                         image, detected_object.rotation, detected_object.translation
                     )
 
-                    self.angle = estimated_angle if detected_object.rotation[0][1] > 0 else -estimated_angle
                     self.image = image
                     self.landmarks_3d = landmarks
