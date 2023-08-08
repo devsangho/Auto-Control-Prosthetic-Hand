@@ -42,6 +42,9 @@ def get_rotation_matrix_from_quaternion(Q):
 
 
 def get_head_angle(camera_angle, imu_angle):
+    camera_angle = np.transpose(
+        camera_angle
+    )  # rotation : rotation matrix from object coordinate frame to camera coordinate frame.
     r_matrix = np.array([[0, 0, -1], [-1, 0, 0], [0, 1, 0]])
     inverse_of_r_matrix = np.transpose(r_matrix)
 
