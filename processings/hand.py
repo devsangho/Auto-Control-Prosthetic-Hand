@@ -30,10 +30,10 @@ def get_position(hand_landmarks, object_landmarks) -> str:
     center_of_hand = hand_landmarks[0]
 
     if top_of_object < center_of_hand.y:
-        return "UP"
+        return "up"
     if down_of_object > center_of_hand.y:
-        return "DOWN"
+        return "down"
     if center_of_object.x < center_of_hand.x:
-        return "RIGHT"
+        return "right"
     if center_of_object.x > center_of_hand.x:
-        return "LEFT"
+        return "left"

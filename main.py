@@ -5,14 +5,11 @@ from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
 import numpy as np
 
-from teensy import sendToTeensy2
+from teensy import arduino1, arduino2
 from processings import hand, angle
 from sensors.imu import IMU
 
-import time
-
 cap = cv2.VideoCapture(0)
-
 
 if __name__ == "__main__":
     objectron = Objectron("Cup", cap)
@@ -26,6 +23,11 @@ if __name__ == "__main__":
     imu = IMU()
     imu_thread = Worker(name="imu", model=imu)
 
+    arduino1_thread = Worker(name="arduino1", model=arduino1)
+    arduino2_thread = Worker(name="arduino2", model=arduino2)
+
+    arduino1_thread.start()
+    arduino2_thread.start()
     objectron_thread.start()
     hand_landmark_detection_thread.start()
     imu_thread.start()
@@ -35,23 +37,40 @@ if __name__ == "__main__":
             if objectron.image is None or hand_landmark_detection.image is None:
                 continue
 
+            head_angle = None
             hand_position = hand.get_position(
                 hand_landmark_detection.landmarks, objectron.landmarks_3d
             )
 
-            head_angle = angle.get_head_angle(
-                objectron.angle, [imu.x, imu.y, imu.z, imu.w]
-            )
-            if head_angle is not None:
-                hand_angle = angle.get_hand_angle(head_angle)
-                sendToTeensy2(hand_angle)
+            # print(np.transpose(objectron.rotation_matrix), time.time())
+            if (
+                objectron.rotation_matrix is not None
+                and imu.rotation_matrix is not None
+            ):
+                head_angle = angle.get_head_angle(
+                    objectron.rotation_matrix, imu.rotation_matrix
+                )
+            # if head_angle is not None and objectron.landmarks_3d is not None:
+            #     hand_angle = angle.get_hand_angle(head_angle)
+            #     arduino2.send(hand_angle)
 
-            sendToTeensy2(hand_position)
-
-            time.sleep(1)
+            # arduino2.send(hand_position)
 
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
+            )
+
+            text = "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            x, y, w, h = 0, 0, 700, 75
+            cv2.rectangle(horizontal_images, (x, x), (x + w, y + h), (0, 0, 0), -1)
+            cv2.putText(
+                horizontal_images,
+                text,
+                (x + int(w / 10), y + int(h / 2)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
             )
 
             cv2.imshow("auto-prothetic-hand control system", horizontal_images)

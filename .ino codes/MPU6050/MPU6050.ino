@@ -342,6 +342,6 @@ void loop() {
         blinkState = !blinkState;
         digitalWrite(LED_PIN, blinkState);
 
-        delay(1000);
+        delay(100);
     }
 }
