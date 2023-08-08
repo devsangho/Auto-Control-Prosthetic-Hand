@@ -37,6 +37,7 @@ if __name__ == "__main__":
             if objectron.image is None or hand_landmark_detection.image is None:
                 continue
 
+            head_angle = None
             hand_position = hand.get_position(
                 hand_landmark_detection.landmarks, objectron.landmarks_3d
             )
@@ -57,6 +58,19 @@ if __name__ == "__main__":
 
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
+            )
+
+            text = "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            x, y, w, h = 0, 0, 700, 75
+            cv2.rectangle(horizontal_images, (x, x), (x + w, y + h), (0, 0, 0), -1)
+            cv2.putText(
+                horizontal_images,
+                text,
+                (x + int(w / 10), y + int(h / 2)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
             )
 
             cv2.imshow("auto-prothetic-hand control system", horizontal_images)
