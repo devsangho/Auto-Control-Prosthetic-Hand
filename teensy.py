@@ -1,25 +1,42 @@
 import serial
 import serial.tools.list_ports
+from queue import Queue
+from config.teensy import serial_port1, serial_port2, serial_baudrate, timeout
 import time
+import numpy
 
 ports = serial.tools.list_ports.comports()
 print([port.name for port in ports])
 
-# 컴퓨터와 OS에 따라 serial_port는 달라질 수 있음.
-# serial_port = '/dev/cu.usbmodem134065601'
-# 아두이노1: imu 센서
-# 아두이노2: 의수
-serial_port1 = "/dev/cu.usbmodem134063301"
-serial_port2 = "/dev/cu.usbmodem134114301"
-serial_baudrate = 115200
-time_out = 2
-arduino1 = serial.Serial(port=serial_port1, baudrate=serial_baudrate, timeout=time_out)
-arduino2 = serial.Serial(port=serial_port2, baudrate=serial_baudrate, timeout=time_out)
+
+class Arduino:
+    def __init__(
+        self, serial_port, serial_baudrate=serial_baudrate, timeout=timeout
+    ) -> None:
+        self.serial_port = serial_port
+        self.serial_baudrate = serial_baudrate
+        self.time_out = timeout
+        self.arduino = serial.Serial(
+            port=serial_port, baudrate=serial_baudrate, timeout=timeout
+        )
+        self.queue = Queue()
+
+    def send(self, message):
+        if type(message) == numpy.float64:
+            message = round(message, 2)
+        self.queue.put(message)
+
+    def run(self):
+        while True:
+            if self.queue.empty():
+                continue
+            message = self.queue.get()
+            self.arduino.write("/".encode() + str(message).encode())
+            print("message: ", message)
+
+            time.sleep(2)
+            self.queue = Queue()
 
 
-def sendToTeensy1(message):
-    arduino1.write("/".encode() + str(message).encode())
-
-
-def sendToTeensy2(message):
-    arduino2.write("/".encode() + str(message).encode())
+arduino1 = Arduino(serial_port=serial_port1)
+arduino2 = Arduino(serial_port=serial_port2)
