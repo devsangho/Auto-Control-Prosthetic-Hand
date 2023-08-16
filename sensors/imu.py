@@ -7,7 +7,7 @@ from collections import deque
 class ImuAndEmg:
     def __init__(self):
         self.rotation_matrix = None
-        self.emglist_max_length = 125
+        self.emglist_max_length = 50
         self.emglist_ch1 = deque([], maxlen=self.emglist_max_length)
         self.emglist_ch2 = deque([], maxlen=self.emglist_max_length)
 
