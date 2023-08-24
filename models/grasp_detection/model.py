@@ -12,12 +12,19 @@ import joblib
 from scipy import signal
 from scipy.signal import butter
 
-from teensy import arduino1
-from sensors.imu import ImuAndEmg
+from sensors.imu_and_emg import IMUAndEMG
 
 
 class GraspDetection:
     def __init__(self, emglist_ch1, emglist_ch2) -> None:
+        # use_unicode = True
+        # charset = "utf-8"
+        # os.chdir("/Users/yunsangho/Desktop/3dobject/models/grasp_detection/")
+        file_name1 = "models/grasp_detection/220309_svm_0.25_lhr_with_500Hz.pkl"
+        self.loaded_model = joblib.load(file_name1)
+        self.cutoff = 50
+        self.fs = 500
+
         self.y_pred = None
         self.emglist_ch1 = emglist_ch1
         self.emglist_ch2 = emglist_ch2
@@ -133,30 +140,9 @@ class GraspDetection:
             pass
 
     def run(self):
-        use_unicode = True
-        charset = "utf-8"
-        os.chdir("/Users/yunsangho/Desktop/3dobject/models/grasp_detection/")
-        file_name1 = "220309_svm_0.25_lhr_with_500Hz.pkl"
-        loaded_model = joblib.load(file_name1)
-        cutoff = 50
-        fs = 500
-
-        while True:
-            self.EMG_classification(
-                ImuAndEmg().emglist_max_length,
-                loaded_model,
-                cutoff,
-                fs,
-            )
-            # t_inference = threading.Thread(
-            #     target=self.EMG_classification,
-            #     args=(
-            #         self.emglist_ch1,
-            #         self.emglist_ch2,
-            #         ImuAndEmg().emglist_max_length,
-            #         loaded_model,
-            #         cutoff,
-            #         fs,
-            #     ),
-            # )
-            # time.sleep(0.1)
+        self.EMG_classification(
+            IMUAndEMG().emglist_max_length,
+            self.loaded_model,
+            self.cutoff,
+            self.fs,
+        )
