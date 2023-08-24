@@ -5,8 +5,9 @@ from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
 import numpy as np
 
-from teensy import arduino1, arduino2
+from teensy import arduino1
 from processings import hand, angle
+
 from sensors.imu import IMU
 
 cap = cv2.VideoCapture(0)
@@ -24,10 +25,10 @@ if __name__ == "__main__":
     imu_thread = Worker(name="imu", model=imu)
 
     arduino1_thread = Worker(name="arduino1", model=arduino1)
-    arduino2_thread = Worker(name="arduino2", model=arduino2)
+    # arduino2_thread = Worker(name="arduino2", model=arduino2)
 
     arduino1_thread.start()
-    arduino2_thread.start()
+    # arduino2_thread.start()
     objectron_thread.start()
     hand_landmark_detection_thread.start()
     imu_thread.start()
@@ -43,6 +44,7 @@ if __name__ == "__main__":
             )
 
             # print(np.transpose(objectron.rotation_matrix), time.time())
+
             if (
                 objectron.rotation_matrix is not None
                 and imu.rotation_matrix is not None
@@ -50,9 +52,10 @@ if __name__ == "__main__":
                 head_angle = angle.get_head_angle(
                     objectron.rotation_matrix, imu.rotation_matrix
                 )
-            # if head_angle is not None and objectron.landmarks_3d is not None:
-            #     hand_angle = angle.get_hand_angle(head_angle)
-            #     arduino2.send(hand_angle)
+            if head_angle is not None and objectron.landmarks_3d is not None:
+                hand_angle = angle.get_hand_angle(head_angle)
+                # arduino2.send(hand_angle)
+                arduino1.send(hand_angle)
 
             # arduino2.send(hand_position)
 
@@ -60,7 +63,9 @@ if __name__ == "__main__":
                 [objectron.image, hand_landmark_detection.image]
             )
 
-            text = "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            text = (
+                "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            )
             x, y, w, h = 0, 0, 700, 75
             cv2.rectangle(horizontal_images, (x, x), (x + w, y + h), (0, 0, 0), -1)
             cv2.putText(

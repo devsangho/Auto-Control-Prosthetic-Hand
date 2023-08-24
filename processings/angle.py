@@ -68,12 +68,13 @@ def get_head_angle(camera_angle, imu_angle):
     is_y_vector_positive = z_rotation[1] > 0
     theta_in_degree = -theta_in_degree if is_y_vector_positive else theta_in_degree
     print(
-        "time:\n",
-        time.time(),
-        "theta:\n",
+        # "time:\n",
+        # time.time(),
+        # "theta:\n",
         theta_in_degree,
-        "\nrotation_matrix:\n",
-        rotation_matrix,
+        ", ",
+        # "\nrotation_matrix:\n",
+        # rotation_matrix,
     )
     return theta_in_degree
 
