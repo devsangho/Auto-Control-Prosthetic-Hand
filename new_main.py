@@ -121,7 +121,7 @@ if __name__ == "__main__":
                     write_buffer_str += "release"
                     pass
 
-            if write_buffer_str is not '':
+            if write_buffer_str != '':
                 serial_hand.write(write_buffer_str)
 
             ##################################################
