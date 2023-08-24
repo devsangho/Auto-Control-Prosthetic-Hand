@@ -127,6 +127,8 @@ if __name__ == "__main__":
             ##################################################
             ##                     GUI                      ##
             ##################################################
+            # Add serial oscilloscope?
+
             horizontal_frames = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
             )
