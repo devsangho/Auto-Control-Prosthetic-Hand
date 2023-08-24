@@ -30,8 +30,18 @@ class HandLandmarkDetection:
                         image,
                         hand_landmarks,
                         mp_hands.HAND_CONNECTIONS,
-                        mp_drawing_styles.get_default_hand_landmarks_style(),
-                        mp_drawing_styles.get_default_hand_connections_style(),
+                        mp_drawing.DrawingSpec(
+                            color=(255, 0, 255), thickness=5, circle_radius=10
+                        ),
+                        mp_drawing.DrawingSpec(
+                            color=(0, 255, 255), thickness=5, circle_radius=10
+                        ),
                     )
+                    for id, lm in enumerate(hand_landmarks.landmark):
+                        h, w, _ = image.shape
+                        cx, cy = int(lm.x * w), int(lm.y * h)
+                        if id == 9:
+                            cv2.circle(image, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
+
                     self.image = image
                 self.landmarks = results.multi_hand_landmarks[0]
