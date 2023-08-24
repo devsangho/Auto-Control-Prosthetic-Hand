@@ -2,10 +2,9 @@ import threading
 
 
 class Worker(threading.Thread):
-    def __init__(self, args=None, name="", model=None):
+    def __init__(self, name="", model=None):
         threading.Thread.__init__(self)
         self.name = name
-        self.args = args
         self.model = model
 
     def run(self):

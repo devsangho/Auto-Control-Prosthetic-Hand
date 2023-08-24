@@ -3,11 +3,12 @@ import cv2
 from worker import Worker
 from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
+from models.grasp_detection.model import GraspDetection
 import numpy as np
 
 from teensy import arduino1, arduino2
 from processings import hand, angle
-from sensors.imu import IMU
+from sensors.imu import ImuAndEmg
 
 cap = cv2.VideoCapture(0)
 
@@ -20,8 +21,17 @@ if __name__ == "__main__":
         name="hand_landmark_detection", model=hand_landmark_detection
     )
 
-    imu = IMU()
-    imu_thread = Worker(name="imu", model=imu)
+    imu_and_emg = ImuAndEmg()
+    imu_and_emg_thread = Worker(
+        name="imu_and_emg",
+        model=imu_and_emg,
+    )
+
+    grasp_detection = GraspDetection(
+        emglist_ch1=imu_and_emg.emglist_ch1,
+        emglist_ch2=imu_and_emg.emglist_ch2,
+    )
+    grasp_detection_thread = Worker(name="grasp_detection", model=grasp_detection)
 
     arduino1_thread = Worker(name="arduino1", model=arduino1)
     arduino2_thread = Worker(name="arduino2", model=arduino2)
@@ -30,7 +40,8 @@ if __name__ == "__main__":
     arduino2_thread.start()
     objectron_thread.start()
     hand_landmark_detection_thread.start()
-    imu_thread.start()
+    imu_and_emg_thread.start()
+    grasp_detection_thread.start()
 
     with torch.no_grad():
         while cap.isOpened():
@@ -42,25 +53,32 @@ if __name__ == "__main__":
                 hand_landmark_detection.landmarks, objectron.landmarks_3d
             )
 
-            # print(np.transpose(objectron.rotation_matrix), time.time())
             if (
                 objectron.rotation_matrix is not None
-                and imu.rotation_matrix is not None
+                and imu_and_emg.rotation_matrix is not None
             ):
                 head_angle = angle.get_head_angle(
-                    objectron.rotation_matrix, imu.rotation_matrix
+                    objectron.rotation_matrix, imu_and_emg.rotation_matrix
                 )
-            # if head_angle is not None and objectron.landmarks_3d is not None:
-            #     hand_angle = angle.get_hand_angle(head_angle)
-            #     arduino2.send(hand_angle)
+            if head_angle is not None and objectron.landmarks_3d is not None:
+                hand_angle = angle.get_hand_angle(head_angle)
+                arduino2.send(hand_angle)
 
-            # arduino2.send(hand_position)
+            if grasp_detection.y_pred is not None:
+                if int(grasp_detection.y_pred) == 0 or int(grasp_detection.y_pred) == 2:
+                    arduino2.send("v")
+                elif int(grasp_detection.y_pred) == 1:
+                    arduino2.send("c")
+
+            arduino2.send(hand_position)
 
             horizontal_images = np.hstack(
                 [objectron.image, hand_landmark_detection.image]
             )
 
-            text = "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            text = (
+                "angle: " + str(head_angle) if head_angle is not None else "loading..."
+            )
             x, y, w, h = 0, 0, 700, 75
             cv2.rectangle(horizontal_images, (x, x), (x + w, y + h), (0, 0, 0), -1)
             cv2.putText(
