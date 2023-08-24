@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     objectron.rotation_matrix, imu_and_emg.rotation_matrix
                 )
                 hand_angle = angle.get_hand_angle(head_angle)
-                write_buffer_str += ('/'+str(hand_angle))
+                write_buffer_str += ("/%03d" %(hand_angle))
 
 
             if grasp_detection.y_pred is not None:

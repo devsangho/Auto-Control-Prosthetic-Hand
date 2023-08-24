@@ -264,8 +264,11 @@ static const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
 
 };
 
+// Added by seuino
+// 200Hz / (1 + value)
+// 0x01(100Hz), 0x07(25hz), 0x09(20Hz), 0x19(10Hz)
 #ifndef MPU6050_DMP_FIFO_RATE_DIVISOR 
-#define MPU6050_DMP_FIFO_RATE_DIVISOR 0x01 // The New instance of the Firmware has this as the default
+#define MPU6050_DMP_FIFO_RATE_DIVISOR 0x19 // The New instance of the Firmware has this as the default
 #endif
 
 // I Simplified this:
