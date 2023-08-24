@@ -43,19 +43,3 @@ class Serial:
             print("Message truncated (while writing)")
         # time2 = time.time()
         # print("write delay: %dus" %((time2-time1)*1e6))
-
-    def send(self, message):
-        if type(message) == numpy.float64:
-            message = round(message, 2)
-        self.queue.put(message)
-
-    def run(self):
-        while True:
-            if self.queue.empty():
-                continue
-            message = self.queue.get()
-            self.arduino.write("/".encode() + str(message).encode())
-            print("message: ", message)
-
-            time.sleep(2)
-            self.queue = Queue()
