@@ -14,20 +14,22 @@ class IMUAndEMG:
         self.emglist_ch2 = deque([], maxlen=self.emglist_max_length)
 
     def _split_and_append(self, line):
-        line = line.replace("quat",',').replace("emg",'').split(',')
+        line = line.replace("quat", ",").replace("emg", "").split(",")
         self.emglist_ch1.append(float(line[0]))
         self.emglist_ch2.append(float(line[1]))
         return line
-    
+
     # Save data from buffer_str
     def buffer_to_data(self, buffer_str):
         # Make sure that buffer_str is not truncated
-        if buffer_str[0] == 'e' and buffer_str[-1] == '\r':
-            buffer_list = buffer_str.split('\r')
+        if buffer_str[0] == "e" and buffer_str[-1] == "\r":
+            buffer_list = buffer_str.split("\r")
             del buffer_list[-1]
             buffer_list_length = len(buffer_list)
             if buffer_list_length > self.emglist_max_length:
-                buffer_list = buffer_list[buffer_list_length-self.emglist_max_length:]
+                buffer_list = buffer_list[
+                    buffer_list_length - self.emglist_max_length :
+                ]
             # buffer_list = [
             #     line.replace("quat",',').replace("emg",'').split(',') for line in buffer_list
             #     ]
