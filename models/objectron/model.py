@@ -2,13 +2,14 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
+
 class Objectron:
     def __init__(self, model_name) -> None:
         self.objectron = mp.solutions.objectron.Objectron(
             static_image_mode=False,
-            max_num_objects=5,
-            min_detection_confidence=0.4,
-            min_tracking_confidence=0.70,
+            max_num_objects=1,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.99,
             model_name=model_name,
         )
         self.image = None
