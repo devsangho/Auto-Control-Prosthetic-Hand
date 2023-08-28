@@ -43,3 +43,6 @@ class Objectron:
                 self.image = frame
                 self.landmarks_3d = landmarks
                 self.rotation_matrix = np.array(detected_object.rotation)
+        else:
+            self.landmarks_3d = None
+            self.rotation_matrix = None
