@@ -134,7 +134,6 @@ class GraspDetection:
                 self.wamp(ch_2_data_filtered),
             ]
             self.y_pred = loaded_model.predict([feature_now])
-            # print("y_pred", self.y_pred)
 
         else:
             pass
