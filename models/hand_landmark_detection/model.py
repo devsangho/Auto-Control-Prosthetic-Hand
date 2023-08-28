@@ -45,3 +45,6 @@ class HandLandmarkDetection:
 
                     self.image = image
                 self.landmarks = results.multi_hand_landmarks[0]
+            else:
+                self.landmarks = None
+                self.position = None
