@@ -1,6 +1,6 @@
 import numpy as np
 from collections import deque
-from processings.angle import get_rotation_matrix_from_quaternion
+from scipy.spatial.transform import Rotation as R
 
 
 # IMU and EMG data
@@ -46,7 +46,6 @@ class IMUAndEMG:
                         float(line[4]),
                         float(line[5]),
                     ]
-                    self.rotation_matrix = np.array(
-                        get_rotation_matrix_from_quaternion(quat)
-                    )
+                    # print(quat)
+                    self.rotation_matrix = np.array(R.from_quat(quat).as_matrix())
                     break
