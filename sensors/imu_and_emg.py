@@ -4,8 +4,8 @@ from scipy.spatial.transform import Rotation as R
 
 
 # IMU and EMG data
-# emg{ch1},{ch2}quat{w},{x},{y},{z}\n
-# emg{ch1},{ch2}\n
+# emg{ch1},{ch2}quat{w},{x},{y},{z}\r
+# emg{ch1},{ch2}\r
 class IMUAndEMG:
     def __init__(self):
         self.rotation_matrix = None
@@ -41,10 +41,11 @@ class IMUAndEMG:
             for line in reversed(buffer_list):
                 if len(line) > 2:
                     quat = [
-                        float(line[2]),
+                        # In scalar-last (x, y, z, w) format
                         float(line[3]),
                         float(line[4]),
                         float(line[5]),
+                        float(line[2]),
                     ]
                     # print(quat)
                     self.rotation_matrix = np.array(R.from_quat(quat).as_matrix())
