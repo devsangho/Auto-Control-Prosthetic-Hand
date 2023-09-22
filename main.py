@@ -199,6 +199,7 @@ if __name__ == "__main__":
                 object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
                 object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
                 object_rotation_matrix = np.matmul(object_rotation_matrix, axis_rotation_matrix.T)
+
                 object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation_matrix)
 
                 # imu_rotation = R.from_matrix(imu_and_emg.rotation_matrix)
@@ -272,7 +273,7 @@ if __name__ == "__main__":
                 break
 
             end_time = time.time()
-            print("total loop: %dms" % ((end_time - start_time) * 1e3))
+            # print("total loop: %dms" % ((end_time - start_time) * 1e3))
 
     cap.release()
     cv2.destroyAllWindows()
