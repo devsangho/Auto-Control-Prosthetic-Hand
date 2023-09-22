@@ -1,13 +1,22 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
+
 
 def get_head_angle(camera_angle, imu_angle):
-    r_x, r_y, r_z = camera_angle
-    camera_angle = np.array([r_z, -r_x, r_y])
-    rotation_matrix = np.matmul(imu_angle, camera_angle)
-    rotation_matrix = R.from_matrix(rotation_matrix)
-    # x, y, z = rotation_matrix.as_rotvec().as_euler("xyz", degrees=True)
-    x, y, z = rotation_matrix.as_euler("xyz", degrees=True)
+    convert_axis = np.array(
+        [
+            [0, 0, -1],
+            [-1, 0, 0],
+            [0, 1, 0],
+        ]
+    )
+    imu_angle = np.multiply(imu_angle, convert_axis)
+    objectron_matrix = np.multiply(camera_angle, camera_angle)
+    rotation_matrix = np.multiply(imu_angle, objectron_matrix)
+    rotation_matrix = np.multiply(objectron_matrix, np.transpose(convert_axis))
+
+    _, _, z = R.from_matrix(rotation_matrix).as_euler("xyz", degrees=True)
     return z
 
 
