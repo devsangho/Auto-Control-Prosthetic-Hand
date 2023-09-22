@@ -142,7 +142,7 @@ if __name__ == "__main__":
                     pass
 
             if len(angles) >= 1:
-                estimated_angle = gaussian_filter1d(angles, sigma=20)[-1]
+                estimated_angle = gaussian_filter1d(angles, sigma=10)[-1]
                 write_buffer_str += "/%03d" % (estimated_angle)
 
             if write_buffer_str != "":
@@ -192,33 +192,33 @@ if __name__ == "__main__":
 
             object_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
             if imu_and_emg.rotation_matrix is not None and objectron.rotation_matrix is not None:
-                axis_rotation_matrix = np.array([[0,0,-1],
-                                                 [-1,0,0],
-                                                 [0,1,0],])
-                object_rotation_matrix = np.matmul(imu_and_emg.rotation_matrix, axis_rotation_matrix)
-                object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
-                object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
-                object_rotation_matrix = np.matmul(object_rotation_matrix, axis_rotation_matrix.T)
-
-                object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation_matrix)
-
-                # imu_rotation = R.from_matrix(imu_and_emg.rotation_matrix)
                 # axis_rotation_matrix = np.array([[0,0,-1],
                 #                                  [-1,0,0],
                 #                                  [0,1,0],])
-                # axis_rotation = R.from_matrix(axis_rotation_matrix)
-                # identity_rotation = R.identity()
-                # objectron_rotation = R.from_matrix(objectron.rotation_matrix)
+                # object_rotation_matrix = np.matmul(imu_and_emg.rotation_matrix, axis_rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, axis_rotation_matrix.T)
 
-                # squared_objectron_rotaion = objectron_rotation * objectron_rotation
-                # rotations = R.concatenate([identity_rotation, squared_objectron_rotaion])
-                # key_times = [0, 2]
-                # slerp = Slerp(key_times, rotations)
-                # interpolated_rotation = slerp(1)
+                # object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation_matrix)
 
-                # object_rotation = imu_rotation * axis_rotation * interpolated_rotation * axis_rotation.inv()
+                imu_rotation = R.from_matrix(imu_and_emg.rotation_matrix)
+                axis_rotation_matrix = np.array([[0,0,-1],
+                                                 [-1,0,0],
+                                                 [0,1,0],])
+                axis_rotation = R.from_matrix(axis_rotation_matrix)
+                identity_rotation = R.identity()
+                objectron_rotation = R.from_matrix(objectron.rotation_matrix)
 
-                # object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation.as_matrix())
+                squared_objectron_rotaion = objectron_rotation * objectron_rotation
+                rotations = R.concatenate([identity_rotation, squared_objectron_rotaion])
+                key_times = [0, 2]
+                slerp = Slerp(key_times, rotations)
+                interpolated_rotation = slerp(1)
+
+                object_rotation = imu_rotation * axis_rotation * interpolated_rotation * axis_rotation.inv()
+
+                object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation.as_matrix())
 
             empty_frame = np.zeros((display_addon, display_width * 2 - (display_addon * 3), 3), dtype=np.uint8)
 
@@ -236,8 +236,8 @@ if __name__ == "__main__":
                 else "is_grasping: loading...   "
             )
             text = (
-                text + "hand_angle: " + str(hand_angle) + "   "
-                if hand_angle is not None
+                text + "hand_angle: " + str(estimated_angle) + "   "
+                if estimated_angle is not None
                 else text + "hand_angle: loading...   "
             )
             text = (
