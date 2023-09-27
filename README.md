@@ -1,12 +1,24 @@
-# Auto-Control-Prosthetic-Hand based on Vision
+# Control of Prosthetic Hand with 6D Pose Estimation
 
-<img width="1912" alt="Screenshot 2023-07-18 at 14 18 07" src="https://github.com/devsangho/Auto-Control-Prothetic-Hand/assets/54205862/03cefa9e-54f1-43fa-955f-4faf23750342">
-<img width="1280" alt="Screenshot 2023-07-18 at 14 18 07" src="https://github.com/devsangho/Auto-Control-Prothetic-Hand/assets/54205862/1b5f9be4-c765-4df2-9050-d80701381e4a">
+In this project, we conduct a study to control the rotation of the prosthetic wrist in consideration of the object's Pose and its surroundings.
 
-This project uses [Objectron](https://github.com/google/mediapipe/blob/master/docs/solutions/objectron.md), [Hand Landmakrs Detection Model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md) and eEMG Model(todo) to control prosthetic hand to pick up and receive objects.
+1. Adjust the angle of the prosthetic hand's wrist to the tilt of the object using images obtained from the human viewing angle.
+
+2. It determines the situation in which the goods are handed over and controls them to respond flexibly.
+
+This project uses [Objectron](https://github.com/google/mediapipe/blob/master/docs/solutions/objectron.md), [Hand Landmakrs Detection Model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md) and eEMG Model to control prosthetic hand to pick up and receive objects.
+
+## Demo
+### 1. Adjust the angle of the prosthetic hand's wrist to the tilt of the object using images obtained from the human viewing angle.
+![demo2](./docs/demo2.gif)
+
+### 2. It determines the situation in which the goods are handed over and controls them to respond flexibly.
+
+![demo1](./docs/demo1.gif)
+
+[More Information](./docs/poster.pdf)
 
 ---
-
 
 ## Installation
 
