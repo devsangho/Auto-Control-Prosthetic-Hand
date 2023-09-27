@@ -4,6 +4,10 @@ import numpy as np
 
 from utils.serial_reader import Serial
 from utils.video_capture import VideoCapture
+from utils.draw_axis import imu_draw_axis, objectron_draw_axis
+
+from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Slerp
 
 from models.objectron.model import Objectron
 from models.hand_landmark_detection.model import HandLandmarkDetection
@@ -18,13 +22,15 @@ import time
 from queue import Queue
 from scipy.ndimage import gaussian_filter1d
 
+import pandas as pd
+
 
 if __name__ == "__main__":
     ##################################################
     ##                Communication                 ##
     ##################################################
     serial_imu_emg = Serial(serial_port1, is_reading=True)
-    serial_hand = Serial(serial_port2, is_reading=False)
+    # serial_hand = Serial(serial_port2, is_reading=False)
 
     cap = VideoCapture(0)
     # cap = cv2.VideoCapture(0)
@@ -54,8 +60,10 @@ if __name__ == "__main__":
     winname = "auto-control-prosthetic-hand system"
     display_width = 16 * 50
     display_height = 9 * 50
+    display_addon = 200
+
     cv2.namedWindow(winname)
-    cv2.resizeWindow(winname=winname, width=display_width * 2, height=display_height)
+    cv2.resizeWindow(winname=winname, width=display_width * 2, height=display_height+display_addon)
     cv2.moveWindow(winname=winname, x=0, y=0)
 
     serial_imu_emg.write("start!")
@@ -134,11 +142,12 @@ if __name__ == "__main__":
                     pass
 
             if len(angles) >= 1:
-                estimated_angle = gaussian_filter1d(angles, sigma=20)[-1]
+                estimated_angle = gaussian_filter1d(angles, sigma=10)[-1]
                 write_buffer_str += "/%03d" % (estimated_angle)
 
             if write_buffer_str != "":
-                serial_hand.write(write_buffer_str)
+                # serial_hand.write(write_buffer_str)
+                pass
 
             ##################################################
             ##                     GUI                      ##
@@ -152,6 +161,72 @@ if __name__ == "__main__":
                 horizontal_frames,
                 (display_width * 2, display_height),
                 interpolation=cv2.INTER_AREA,
+            )
+
+            # objectron.rotation_matrix
+            # imu_and_emg.rotation_matrix
+            imu_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
+            if imu_and_emg.rotation_matrix is not None:
+                imu_rotation_matrix = imu_and_emg.rotation_matrix
+                imu_axis_frame = imu_draw_axis(imu_axis_frame, imu_rotation_matrix)
+
+            objectron_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
+            if objectron.rotation_matrix is not None:
+                objectron_rotation_matrix = np.array([[1,0,0],
+                                                      [0,1,0],
+                                                      [0,0,1],])
+                objectron_rotation_matrix = np.matmul(objectron_rotation_matrix, objectron.rotation_matrix)
+                objectron_rotation_matrix = np.matmul(objectron_rotation_matrix, objectron.rotation_matrix)
+                objectron_axis_frame = objectron_draw_axis(objectron_axis_frame, objectron_rotation_matrix)
+
+                # identity_rotation = R.identity()
+                # objectron_rotation = R.from_matrix(objectron.rotation_matrix)
+
+                # squared_objectron_rotaion = objectron_rotation * objectron_rotation
+                # rotations = R.concatenate([identity_rotation, squared_objectron_rotaion])
+                # key_times = [0, 2]
+                # slerp = Slerp(key_times, rotations)
+                # interpolated_rotation = slerp(1)
+
+                # objectron_axis_frame = objectron_draw_axis(objectron_axis_frame, interpolated_rotation.as_matrix())
+
+            object_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
+            if imu_and_emg.rotation_matrix is not None and objectron.rotation_matrix is not None:
+                # axis_rotation_matrix = np.array([[0,0,-1],
+                #                                  [-1,0,0],
+                #                                  [0,1,0],])
+                # object_rotation_matrix = np.matmul(imu_and_emg.rotation_matrix, axis_rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, objectron.rotation_matrix)
+                # object_rotation_matrix = np.matmul(object_rotation_matrix, axis_rotation_matrix.T)
+
+                # object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation_matrix)
+
+                imu_rotation = R.from_matrix(imu_and_emg.rotation_matrix)
+                axis_rotation_matrix = np.array([[0,0,-1],
+                                                 [-1,0,0],
+                                                 [0,1,0],])
+                axis_rotation = R.from_matrix(axis_rotation_matrix)
+                identity_rotation = R.identity()
+                objectron_rotation = R.from_matrix(objectron.rotation_matrix)
+
+                squared_objectron_rotaion = objectron_rotation * objectron_rotation
+                rotations = R.concatenate([identity_rotation, squared_objectron_rotaion])
+                key_times = [0, 2]
+                slerp = Slerp(key_times, rotations)
+                interpolated_rotation = slerp(1)
+
+                object_rotation = imu_rotation * axis_rotation * interpolated_rotation * axis_rotation.inv()
+
+                object_axis_frame = imu_draw_axis(object_axis_frame, object_rotation.as_matrix())
+
+            empty_frame = np.zeros((display_addon, display_width * 2 - (display_addon * 3), 3), dtype=np.uint8)
+
+            axis_frame = np.hstack(
+                [imu_axis_frame, objectron_axis_frame, object_axis_frame, empty_frame]
+            )
+            horizontal_frames = np.vstack(
+                [horizontal_frames, axis_frame]
             )
 
             is_grasping = grasp_detection.y_pred
@@ -192,10 +267,13 @@ if __name__ == "__main__":
 
             # cv2.pollKey()
             if cv2.waitKey(1) & 0xFF == ord("q"):
+                # Save csv file
+                # df = pd.DataFrame(angles, columns = ['hand_angles'])
+                # df.to_csv("hand_angles.csv", index = False)
                 break
 
             end_time = time.time()
-            print("total loop: %dms" % ((end_time - start_time) * 1e3))
+            # print("total loop: %dms" % ((end_time - start_time) * 1e3))
 
     cap.release()
     cv2.destroyAllWindows()
