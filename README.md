@@ -1,4 +1,6 @@
 # Control of Prosthetic Hand with 6D Pose Estimation
+![demo2](./docs/demo2.gif) | ![demo1](./docs/demo1.gif)
+--- | ---
 
 ## Motivation
 When gripping an object, the axial rotation responsible for internal and external electrical conduction is the most important of the three degrees of freedom of the wrist. This is because, if it is impossible to rotate, it can be compensated by other movements of the arm and body, causing pain, discomfort, and secondary osteomyuscular diseases.
@@ -16,13 +18,6 @@ In this project, we conduct a study to control the rotation of the prosthetic wr
 
 This project uses [Objectron](https://github.com/google/mediapipe/blob/master/docs/solutions/objectron.md), [Hand Landmakrs Detection Model](https://github.com/google/mediapipe/blob/master/docs/solutions/hands.md) and eEMG Model to control prosthetic hand to pick up and receive objects.
 
-## Demo
-### 1. Adjust the angle of the prosthetic hand's wrist to the tilt of the object using images obtained from the human viewing angle.
-![demo2](./docs/demo2.gif)
-
-### 2. It determines the situation in which the goods are handed over and controls them to respond flexibly.
-
-![demo1](./docs/demo1.gif)
 
 [More Information](./docs/poster.pdf)
 
