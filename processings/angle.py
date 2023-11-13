@@ -32,7 +32,6 @@ def get_head_angle(camera_angle, imu_angle):
     rotation_vector = object_rotation_matrix[:,2]
     rotation_vector = [0, rotation_vector[1], rotation_vector[2]]
     rotation_vector = rotation_vector/np.linalg.norm(rotation_vector)
-    print(rotation_vector)
 
     angle = -np.arctan(object_rotation_matrix[1,2]/object_rotation_matrix[2,2])/3.1415*180
 

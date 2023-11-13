@@ -74,6 +74,10 @@ if __name__ == "__main__":
     estimated_angle = None
     hand_position = None
 
+    is_recording = False
+    label = 0
+    imu_rotation_matrices = np.array([])
+
     with torch.no_grad():
         if not cap.isOpened():
             print("Cannot open camera")
@@ -167,8 +171,7 @@ if __name__ == "__main__":
             # imu_and_emg.rotation_matrix
             imu_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
             if imu_and_emg.rotation_matrix is not None:
-                imu_rotation_matrix = imu_and_emg.rotation_matrix
-                imu_axis_frame = imu_draw_axis(imu_axis_frame, imu_rotation_matrix)
+                imu_axis_frame = imu_draw_axis(imu_axis_frame, imu_and_emg.rotation_matrix)
 
             objectron_axis_frame = np.zeros((display_addon, display_addon, 3), dtype=np.uint8)
             if objectron.rotation_matrix is not None:
@@ -265,12 +268,24 @@ if __name__ == "__main__":
 
             cv2.imshow("auto-control-prosthetic-hand system", horizontal_frames)
 
-            # cv2.pollKey()
-            if cv2.waitKey(1) & 0xFF == ord("q"):
+            if is_recording == True:
+                file_name = f'data/{label:0>4}.jpg'
+                cv2.imwrite(file_name, frame)
+                imu_rotation_matrix = np.expand_dims(imu_and_emg.rotation_matrix, axis=0)
+                imu_rotation_matrices = np.concatenate((imu_rotation_matrices, imu_rotation_matrix), axis=0) if imu_rotation_matrices.size else imu_rotation_matrix
+                if label == 19:
+                    np.save('data/labels', imu_rotation_matrices)
+                    is_recording = False
+                label += 1
+
+            keycode = cv2.waitKey(1) & 0xFF
+            if keycode == ord("q"):
                 # Save csv file
                 # df = pd.DataFrame(angles, columns = ['hand_angles'])
                 # df.to_csv("hand_angles.csv", index = False)
                 break
+            elif keycode == ord("a"):
+                is_recording = True
 
             end_time = time.time()
             # print("total loop: %dms" % ((end_time - start_time) * 1e3))
